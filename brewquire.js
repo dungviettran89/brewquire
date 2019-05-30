@@ -33,7 +33,6 @@ const loadPackageLock = async ({packageLock, cdn}) => {
         let dependency = dependencies[name];
         let {version} = dependency;
         let baseUrl = resolveUrl(packageLockUrl, '..', '..', 'node_modules', name);
-        console.log(baseUrl);
         if (cdn) baseUrl = `${cdn}/${name}@${version}`;
         dependency.baseUrl = baseUrl;
         dependency.packageJson = fetch(`${baseUrl}/package.json`)
@@ -61,9 +60,26 @@ const downloadCode = async (url, {packageLock, extensions, transform}, codes = {
         //resolve using dependency
         let dependency = packageLock.dependencies[dependencyName];
         let {baseUrl, packageJson} = dependency;
-        resolvedUrl = `${baseUrl}/index`;
+        if (packageJson.main) {
+            resolvedUrl = `${baseUrl}/${packageJson.main}`
+        } else {
+            let candidates = [
+                `${baseUrl}/index.js`,
+                `${baseUrl}/index.mjs`,
+                `${baseUrl}/${dependencyName.split('/').pop()}.js`
+            ].map(url => fetch(url).then(r => r.status === 200 ? url : undefined));
+            for (let i = 0; i < candidates.length; i++) {
+                resolvedUrl = await candidates[i];
+                if (resolvedUrl) break;
+            }
+        }
+    } else {
+        resolvedUrl = resolveUrl('..', ...urlParts);
+        if (!resolvedUrl.endsWith('.js')) resolvedUrl += '.js';
     }
 
+    console.log(resolvedUrl);
+    if (codes.hasOwnProperty(resolvedUrl)) return;
 
     return codes;
 };
