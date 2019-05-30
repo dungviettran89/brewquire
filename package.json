@@ -1,0 +1,27 @@
+{
+  "name": "brewquire",
+  "version": "0.0.1",
+  "description": "A browser require script to load package from anywhere.",
+  "main": "brewquire.js",
+  "scripts": {
+    "start":"http-server -c 1 -o -p 14231"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dungviettran89/brewquire.git"
+  },
+  "keywords": [
+    "require",
+    "module"
+  ],
+  "author": "dungviettran89",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dungviettran89/brewquire/issues"
+  },
+  "homepage": "https://github.com/dungviettran89/brewquire#readme",
+  "files": [
+    "brewquire.js",
+    "package.json"
+  ]
+}
