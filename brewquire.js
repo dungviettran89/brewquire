@@ -1,68 +1,69 @@
-let resolved = {};
-let downloaded = {};
-let packages = undefined;
-const packagesLockdotJson = async (options) => {
-    if (packages) return packages;
-    let path = options.path || ".";
-    let response = await fetch(`${path}/package-lock.json`);
-    let packagesLock = response.ok ? await response.json() : {dependencies: {}};
-    for (let name in packagesLock.dependencies) {
-        const dependency = packagesLock.dependencies[name];
-        let packageUrl = `${path}/node_modules/${name}`;
-        if (options.cdn === true) {
-            packageUrl = `https://unpkg.com/${name}@${dependency.version}/`;
-        }
-        dependency.packageUrl = packageUrl;
-        dependency.promise = fetch(`${packageUrl}/package.json`).then(r => r.ok ? r.json() : {});
-    }
-    for (let name in packagesLock.dependencies) {
-        const dependency = packagesLock.dependencies[name];
-        let dependencyJson = await dependency.promise;
-        dependency.json = dependencyJson;
-        dependency.main = await tryFetch(`${dependency.packageUrl}/${dependencyJson.main}`) ||
-            await tryFetch(`${dependency.packageUrl}/index.js`) ||
-            await tryFetch(`${name.split("/").pop()}.js`);
-    }
-    return (packages = packagesLock);
-};
-const tryFetch = async (url) => {
-    return fetch(url).then(r => r.status === 200 ? url : undefined);
-};
-const brewquire = async (url, referer, options = {resolved: []}) => {
-    let packagesLock = await packagesLockdotJson(options);
-    const depParts = url.split("/");
-    let dep = depParts[0].startsWith("@") ? `${depParts[0]}/${depParts[1]}` : depParts[0];
-    if (packagesLock.dependencies[dep]) {
-        return await brewquire(packagesLock.dependencies[dep].main, null, options);
-    }
-    let resolvedUrl = url.endsWith(".js") ? url : `${url}.js`;
-    resolvedUrl = referer ? `${referer}/../${resolvedUrl}` : resolvedUrl;
-    let href = location.href.split('#')[0];
-    resolvedUrl = resolvedUrl.startsWith("http") ? resolvedUrl : `${href}/../${resolvedUrl}`;
-    resolvedUrl = new URL(resolvedUrl).href;
-    if (resolved.hasOwnProperty(resolvedUrl)) {
-        return resolved[resolvedUrl];
-    }
-    let codeResponse = await fetch(resolvedUrl);
-    if (!codeResponse.ok) {
-        throw `Can not load ${resolvedUrl}`;
-    }
-    let code = await codeResponse.text();
-    if (options.transform) code = options.transform(code).code;
-    return await (async () => {
-        let exports = {};
-        let require = async (u) => brewquire(u, resolvedUrl, options);
-        try {
-            code = code.replace(/require\(/g, "await require(");
-            await new Promise((resolve, reject) => {
-                eval(`(async ()=>{try{${code};resolve();}catch(e){reject(e)}})()`);
-            });
-        } catch (e) {
-            console.log(`Error parsing ${resolvedUrl}`, e, code);
-        }
-        resolved[resolvedUrl] = exports;
-        return exports;
-    })();
+window.brewquire = async (url, options = {}) => {
+    //phase 1: prepare options
+    options.extensions = ['js', 'mjs'];
+    options.transform = await loadTransform(options);
+    options.packageLock = await loadPackageLock(options);
+    //phase 2: download all code
+    let codes = await downloadCode(url, options);
 };
 
-window.brewquire = brewquire;
+const loadTransform = async ({transform}) => {
+    if (typeof transform === 'function') return transform;
+    await fetch('https://unpkg.com/@babel/standalone')
+        .then(r => r.text())
+        .then(babel => eval(babel));
+    return (code) => {
+        return Babel.transform(code,
+            {presets: ["es2015", ["stage-2", {decoratorsLegacy: true, loose: true}]]}
+        );
+    }
+};
+
+const loadPackageLock = async ({packageLock, cdn}) => {
+    //download lock file
+    packageLock = packageLock || "./package-lock.json";
+    let packageLockUrl = packageLock;
+    packageLock = await fetch(packageLock).then(r => r.status === 200 ? r.json() : {});
+    if (!packageLock.dependencies) return packageLock;
+    //resolve all dependencies
+    let {dependencies} = packageLock;
+    //load package.json in parallel
+    for (let name in dependencies) {
+        if (!dependencies.hasOwnProperty(name)) continue;
+        let dependency = dependencies[name];
+        let {version} = dependency;
+        let baseUrl = resolveUrl(packageLockUrl, '..', '..', 'node_modules', name);
+        console.log(baseUrl);
+        if (cdn) baseUrl = `${cdn}/${name}@${version}`;
+        dependency.baseUrl = baseUrl;
+        dependency.packageJson = fetch(`${baseUrl}/package.json`)
+            .then(r => r.status === 200 ? r.json() : {});
+    }
+    for (let name in dependencies) {
+        if (!dependencies.hasOwnProperty(name)) continue;
+        let dependency = dependencies[name];
+        dependency.packageJson = await dependency.packageJson;
+    }
+    return packageLock;
+};
+
+const resolveUrl = (...args) => {
+    if (!args[0].startsWith('http')) args = [location.href.replace(location.hash, "")].concat(args);
+    return new URL(args.join('/')).href;
+};
+
+const downloadCode = async (url, {packageLock, extensions, transform}, codes = {}) => {
+    //resolve url
+    let resolvedUrl;
+    let urlParts = url.split('/');
+    let dependencyName = url.startsWith('@') ? (urlParts[0] + urlParts[1]) : urlParts[0];
+    if (packageLock.dependencies.hasOwnProperty(dependencyName)) {
+        //resolve using dependency
+        let dependency = packageLock.dependencies[dependencyName];
+        let {baseUrl, packageJson} = dependency;
+        resolvedUrl = `${baseUrl}/index`;
+    }
+
+
+    return codes;
+};

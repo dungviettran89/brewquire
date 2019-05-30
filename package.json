@@ -4,7 +4,7 @@
   "description": "A browser require script to load package from anywhere.",
   "main": "brewquire.js",
   "scripts": {
-    "start":"http-server -c 1 -o -p 14231"
+    "start": "http-server -c 1 -o -p 14231"
   },
   "repository": {
     "type": "git",

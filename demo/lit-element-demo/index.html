@@ -3,16 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Lit Element demo</title>
-    <script src="https://unpkg.com/@babel/standalone@7.4.5/babel.min.js"></script>
     <script src="../../brewquire.js"></script>
     <script>
         (async () => {
-            const transform = (code) => {
-                return Babel.transform(code,
-                    {presets: ["es2015", ["stage-2", {decoratorsLegacy: true, loose: true}]]}
-                );
-            };
-            console.log(await brewquire("./index", null, {transform, cdn: true}));
+            let options = {cdn: "https://unpkg.com/"};
+            console.log(await brewquire("./index", options));
+            console.log(options);
         })();
     </script>
 </head>
