@@ -1,5 +1,5 @@
 let resolved = {};
-let resolvedUrls = [];
+let downloaded = {};
 let packages = undefined;
 const packagesLockdotJson = async (options) => {
     if (packages) return packages;
@@ -18,11 +18,15 @@ const packagesLockdotJson = async (options) => {
     for (let name in packagesLock.dependencies) {
         const dependency = packagesLock.dependencies[name];
         let dependencyJson = await dependency.promise;
-        let main = dependencyJson.main || `${name.split("/").pop()}.js`;
         dependency.json = dependencyJson;
-        dependency.main = `${dependency.packageUrl}/${main}`;
+        dependency.main = await tryFetch(`${dependency.packageUrl}/${dependencyJson.main}`) ||
+            await tryFetch(`${dependency.packageUrl}/index.js`) ||
+            await tryFetch(`${name.split("/").pop()}.js`);
     }
     return (packages = packagesLock);
+};
+const tryFetch = async (url) => {
+    return fetch(url).then(r => r.status === 200 ? url : undefined);
 };
 const brewquire = async (url, referer, options = {resolved: []}) => {
     let packagesLock = await packagesLockdotJson(options);
@@ -36,7 +40,7 @@ const brewquire = async (url, referer, options = {resolved: []}) => {
     let href = location.href.split('#')[0];
     resolvedUrl = resolvedUrl.startsWith("http") ? resolvedUrl : `${href}/../${resolvedUrl}`;
     resolvedUrl = new URL(resolvedUrl).href;
-    if (resolvedUrls.includes(resolvedUrl)) {
+    if (resolved.hasOwnProperty(resolvedUrl)) {
         return resolved[resolvedUrl];
     }
     let codeResponse = await fetch(resolvedUrl);
@@ -57,7 +61,6 @@ const brewquire = async (url, referer, options = {resolved: []}) => {
             console.log(`Error parsing ${resolvedUrl}`, e, code);
         }
         resolved[resolvedUrl] = exports;
-        resolvedUrls.push(resolvedUrl);
         return exports;
     })();
 };
