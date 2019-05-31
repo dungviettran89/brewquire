@@ -1,6 +1,6 @@
 {
   "name": "brewquire",
-  "version": "0.0.3-rc.0",
+  "version": "0.0.3",
   "description": "A browser require script to load package from anywhere.",
   "main": "brewquire.js",
   "scripts": {
