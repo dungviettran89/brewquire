@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue demo</title>
+    <script src="../../brewquire.js"></script>
+</head>
+<body>
+<div id="demo">
+    {{ message }}
+</div>
+<script>
+    window.process = {env: {}};
+    (async () => {
+        let options = {cdn: "https://unpkg.com"};
+        console.log(await brewquire("./index", options));
+        console.log("options", options);
+    })();
+</script>
+</body>
+</html>

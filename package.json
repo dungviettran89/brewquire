@@ -23,5 +23,6 @@
   "files": [
     "brewquire.js",
     "package.json"
-  ]
+  ],
+  "dependencies": {}
 }
