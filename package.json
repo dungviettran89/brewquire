@@ -5,8 +5,11 @@
   "main": "brewquire.js",
   "scripts": {
     "start": "http-server -c 1 -o -p 14231",
-    "release:rc": "npm version prerelease --preid=rc && npm publish",
-    "release": "npm version patch && npm publish"
+    "prettier": "prettier **/*.js --write",
+    "eslint": "eslint brewquire.js demo/**/*.js",
+    "prepublishOnly": "npm run prettier && npm run eslint",
+    "release:rc": "npm version prerelease --preid=rc && npm publish --tag=next",
+    "release": "npm version patch && npm publish --tag=next"
   },
   "repository": {
     "type": "git",
@@ -26,5 +29,16 @@
     "brewquire.js",
     "package.json"
   ],
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "husky": "^2.3.0",
+    "prettier": "^1.17.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run prepublishOnly"
+    }
+  }
 }

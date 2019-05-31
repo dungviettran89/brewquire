@@ -1,23 +1,26 @@
 import React from "react";
-import ReactDOM from "react-dom"
+import ReactDOM from "react-dom";
 
 class LikeButton extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {liked: false};
+  constructor(props) {
+    super(props);
+    this.state = { liked: false };
+  }
+
+  render() {
+    if (this.state.liked) {
+      return "You liked this.";
     }
 
-    render() {
-        if (this.state.liked) {
-            return 'You liked this.';
-        }
-
-        return React.createElement(
-            'button',
-            {onClick: () => this.setState({liked: true})},
-            'Like'
-        );
-    }
+    return React.createElement(
+      "button",
+      { onClick: () => this.setState({ liked: true }) },
+      "Like"
+    );
+  }
 }
 
-ReactDOM.render(React.createElement(LikeButton), document.querySelector('#react-demo'));
+ReactDOM.render(
+  React.createElement(LikeButton),
+  document.querySelector("#react-demo")
+);
