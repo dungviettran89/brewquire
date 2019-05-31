@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <title>Lit Element demo</title>
     <script src="../../brewquire.js"></script>
-    <script>
-        (async () => {
-            let options = {cdn: "https://unpkg.com"};
-            console.log(await brewquire("./index", options));
-            console.log("options", options);
-        })();
-    </script>
 </head>
 <body>
-<div id="demo"></div>
+<div id="lit-element-demo"></div>
+<script>
+    (async () => {
+        let options = {cdn: "https://unpkg.com"};
+        console.log(await brewquire("./index", options));
+        console.log("options", options);
+    })();
+</script>
 </body>
 </html>

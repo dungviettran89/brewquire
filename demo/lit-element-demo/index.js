@@ -12,6 +12,6 @@ export default class TestComponent extends LitElement {
 `;
     }
 }
-document.getElementById("demo").innerHTML = `
+document.getElementById("lit-element-demo").innerHTML = `
 <test-component heading="Hello world"></test-component>
 `;

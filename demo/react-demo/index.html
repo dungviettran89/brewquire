@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <title>React demo</title>
     <script src="../../brewquire.js"></script>
-    <script>
-        window.process = {env: {}};
-        (async () => {
-            let options = {cdn: "https://unpkg.com"};
-            console.log(await brewquire("./index", options));
-            console.log("options", options);
-        })();
-    </script>
+
 </head>
 <body>
 Example from React getting started.
-<div id="demo"></div>
+<div id="react-demo"></div>
+<script>
+    window.process = {env: {}};
+    (async () => {
+        let options = {cdn: "https://unpkg.com"};
+        console.log(await brewquire("./index", options));
+        console.log("options", options);
+    })();
+</script>
 </body>
 </html>

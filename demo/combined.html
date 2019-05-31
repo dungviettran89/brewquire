@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Combined example</title>
+    <script src="../brewquire.js"></script>
+
+</head>
+<body>
+<div id="lit-element-demo"></div>
+<script>
+    (async () => {
+        let options = {cdn: "https://unpkg.com", packageLock: "lit-element-demo/package-lock.json"};
+        console.log(await brewquire("./lit-element-demo/index", options));
+        console.log("options", options);
+    })();
+</script>
+
+<div id="react-demo"></div>
+<script>
+    window.process = {env: {}};
+    (async () => {
+        let options = {cdn: "https://unpkg.com",packageLock: "react-demo/package-lock.json"};
+        console.log(await brewquire("./react-demo/index", options));
+        console.log("options", options);
+    })();
+</script>
+<div id="vue-demo">
+    {{ message }}
+</div>
+<script>
+    window.process = {env: {}};
+    (async () => {
+        let options = {cdn: "https://unpkg.com",packageLock: "vue-demo/package-lock.json"};
+        console.log(await brewquire("./vue-demo/index", options));
+        console.log("options", options);
+    })();
+</script>
+</body>
+</html>

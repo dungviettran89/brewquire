@@ -20,4 +20,4 @@ class LikeButton extends React.Component {
     }
 }
 
-ReactDOM.render(React.createElement(LikeButton), document.querySelector('#demo'));
+ReactDOM.render(React.createElement(LikeButton), document.querySelector('#react-demo'));
