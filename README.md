@@ -1,5 +1,5 @@
-# Brewquire
 Browser require, bringing the power of npm into your browser.
+
 [Demo](https://dungviettran89.github.io/brewquire/demo/index.html)
 ## Getting started
 Prepare package.json and package-lock.json like normal.
