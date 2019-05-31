@@ -1,16 +1,16 @@
-import {customElement, html, LitElement, property} from "lit-element";
+import { customElement, html, LitElement, property } from "lit-element";
 
 @customElement("test-component")
 class TestComponent extends LitElement {
-    @property()
-    heading = "test";
+  @property()
+  heading = "test";
 
-    render() {
-        return html`
+  render() {
+    return html`
       <h2>${this.heading}</h2>
       <mwc-button>Test</mwc-button>
     `;
-    }
+  }
 }
 
 export default TestComponent;
