@@ -9,7 +9,7 @@
     "eslint": "eslint brewquire.js demo/**/*.js",
     "prepublishOnly": "npm run prettier && npm run eslint",
     "release:rc": "npm version prerelease --preid=rc && npm publish --tag=next",
-    "release": "npm version patch && npm publish --tag=next"
+    "release": "npm version patch && npm publish --tag=latest"
   },
   "repository": {
     "type": "git",
