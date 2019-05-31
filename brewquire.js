@@ -1,9 +1,9 @@
+// phase 2: download all code
+const currentHtml = location.href.replace(location.hash, "").replace("#", "");
 window.brewquire = async (url, options = {}) => {
   // phase 1: prepare options
   options.transform = await loadTransform(options);
   options.packageLock = await loadPackageLock(options);
-  // phase 2: download all code
-  const currentHtml = location.href.replace(location.hash, "");
   const context = await downloadCode(url, currentHtml, options);
   // phase 3: run eval
   const resolved = {};
@@ -78,8 +78,7 @@ const loadPackageLock = async ({ packageLock, cdn }) => {
 };
 
 const resolveUrl = (...args) => {
-  if (!args[0].startsWith("http"))
-    args = [location.href.replace(location.hash, "")].concat(args);
+  if (!args[0].startsWith("http")) args = [currentHtml].concat(args);
   return new URL(args.join("/")).href;
 };
 
