@@ -6,14 +6,13 @@
     <script src="../../brewquire.js"></script>
     <script>
         (async () => {
-            let options = {cdn: "https://unpkg.com/"};
+            let options = {cdn: "https://unpkg.com"};
             console.log(await brewquire("./index", options));
-            console.log(options);
+            console.log("options", options);
         })();
     </script>
 </head>
 <body>
-The below portion is rendered using Lit Element
 <div id="demo"></div>
 </body>
 </html>

@@ -1,20 +1,23 @@
 import React from "react";
+import ReactDOM from "react-dom"
 
-let Hello = React.createClass({
-    displayName: 'Hello',
-    getInitialState: function () {
-        return {name: this.props.name};
-    },
-    handleChange: function (event) {
-        this.setState({name: event.target.value});
-    },
-    render: function () {
-        return React.DOM.div(null,
-            "Name: ", React.DOM.input({type: "text", value: this.state.name, onChange: this.handleChange}),
-            React.DOM.br(),
-            "Hello ", this.state.name, "! "
+class LikeButton extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {liked: false};
+    }
+
+    render() {
+        if (this.state.liked) {
+            return 'You liked this.';
+        }
+
+        return React.createElement(
+            'button',
+            {onClick: () => this.setState({liked: true})},
+            'Like'
         );
     }
-});
+}
 
-React.render(React.createElement(Hello, {name: "World"}), document.getElementById("demo"));
+ReactDOM.render(React.createElement(LikeButton), document.querySelector('#demo'));
