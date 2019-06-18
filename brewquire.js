@@ -50,6 +50,8 @@ const loadTransform = async ({ transform }) => {
     .then(babel => eval(babel));
   return code => {
     return window.Babel.transform(code, {
+      comments: false,
+      compact: true,
       presets: ["es2015", ["stage-2", { decoratorsLegacy: true, loose: true }]]
     }).code;
   };
