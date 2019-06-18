@@ -1,4 +1,5 @@
 import { customElement, html, LitElement, property } from "lit-element";
+import fa from "font-awesome/css/font-awesome.css";
 
 @customElement("test-component")
 class TestComponent extends LitElement {
@@ -7,8 +8,9 @@ class TestComponent extends LitElement {
 
   render() {
     return html`
+      <link rel="stylesheet" href="${fa}" />
       <h2>${this.heading}</h2>
-      <mwc-button>Test</mwc-button>
+      Test <i class="fa fa-address-book"></i>
     `;
   }
 }

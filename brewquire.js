@@ -12,6 +12,14 @@ window.brewquire = async (url, options = {}) => {
     if (resolved.hasOwnProperty(actualUrl)) return resolved[actualUrl];
     // eslint-disable-next-line no-unused-vars
     let require = r => evalRequire(r, actualUrl, context);
+    if (actualUrl.endsWith(".css")) {
+      let link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = actualUrl;
+      document.head.appendChild(link);
+      resolved[actualUrl] = actualUrl;
+      return resolved[actualUrl];
+    }
     let code = context.codes[actualUrl];
     try {
       let exports = {};
@@ -103,7 +111,7 @@ const downloadCode = async (
     let subPaths = scoped ? urlParts.splice(2) : urlParts.splice(1);
     if (subPaths.length > 0) {
       resolvedUrl = resolveUrl(baseUrl, ...subPaths);
-      if (!resolvedUrl.endsWith(".js")) resolvedUrl += ".js";
+      if (!resolvedUrl.match(/\.(js|css|mjs)$/g)) resolvedUrl += ".js";
     } else if (packageJson.main) {
       resolvedUrl = `${baseUrl}/${packageJson.main}`;
     } else {
@@ -122,12 +130,18 @@ const downloadCode = async (
     }
   } else {
     resolvedUrl = resolveUrl(referrer, "..", ...urlParts);
-    if (!resolvedUrl.endsWith(".js")) resolvedUrl += ".js";
+    if (!resolvedUrl.match(/\.(js|css|mjs)$/g)) resolvedUrl += ".js";
   }
   context.requires[`${referrer}->${url}`] = resolvedUrl;
   if (context.codes.hasOwnProperty(resolvedUrl)) return context;
   let codeResponse = await fetch(resolvedUrl);
   if (codeResponse.status !== 200) throw `Cannot load from ${resolvedUrl}`;
+  //simply save the url for later
+  if (resolvedUrl.endsWith(".css")) {
+    context.codes[resolvedUrl] = resolvedUrl;
+    return context;
+  }
+  //transpile code if needed
   let code = transform(await codeResponse.text());
   context.codes[resolvedUrl] = code;
   let regex = /require\(["'](.*?)["']\)/g,
