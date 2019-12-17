@@ -28,9 +28,9 @@ If you need to configure babel, please provide a transform method
 <script src="https://unpkg.com/brewquire"></script>
 <script src="https://unpkg.com/@babel/standalone"></script>
 <script>
-    let transform = (code) => {
+    let transform = (code,url) => {
         return Babel.transform(code,
-            {presets: ["es2015", ["stage-2", {decoratorsLegacy: true, loose: true}]]}
+            {filename:url,presets: ["es2015", ["stage-2", {decoratorsLegacy: true, loose: true}]]}
         ).code;
     };
     brewquire("./index", {transform})

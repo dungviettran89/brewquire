@@ -4,7 +4,7 @@ import fa from "font-awesome/css/font-awesome.css";
 @customElement("test-component")
 class TestComponent extends LitElement {
   @property()
-  heading = "test";
+  heading: string = "test";
 
   render() {
     return html`

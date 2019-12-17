@@ -1,8 +1,8 @@
-// phase 2: download all code
 const currentHtml = location.href.replace(location.hash, "").replace("#", "");
 window.brewquire = async (url, options = {}) => {
   // phase 1: prepare options
   options.transform = await loadTransform(options);
+  // phase 2: download all code
   options.packageLock = await loadPackageLock(options);
   const context = await downloadCode(url, currentHtml, options);
   // phase 3: run eval
@@ -48,11 +48,24 @@ const loadTransform = async ({ transform }) => {
   await fetch("https://unpkg.com/@babel/standalone")
     .then(r => r.text())
     .then(babel => eval(babel));
-  return code => {
+  return (code, url) => {
     return window.Babel.transform(code, {
       comments: false,
       compact: true,
-      presets: ["es2015", ["stage-2", { decoratorsLegacy: true, loose: true }]]
+      filename: url,
+      presets: [
+        "es2015",
+        [
+          "typescript",
+          {
+            allowJs: true,
+            noImplicitAny: true,
+            experimentalDecorators: true,
+            target: "es2015"
+          }
+        ],
+        ["stage-2", { decoratorsLegacy: true, loose: true }]
+      ]
     }).code;
   };
 };
@@ -117,22 +130,18 @@ const downloadCode = async (
     } else if (packageJson.main) {
       resolvedUrl = `${baseUrl}/${packageJson.main}`;
     } else {
-      let candidates = [
+      resolvedUrl = await detectUrl([
         `${baseUrl}/index.js`,
         `${baseUrl}/index.mjs`,
         `${baseUrl}/${dependencyName.split("/").pop()}.js`,
         `${baseUrl}/${dependencyName.split("/").pop()}.mjs`
-      ];
-      for (let i = 0; i < candidates.length; i++) {
-        resolvedUrl = await fetch(candidates[i]).then(r =>
-          r.status === 200 ? candidates[i] : undefined
-        );
-        if (resolvedUrl) break;
-      }
+      ]);
     }
   } else {
     resolvedUrl = resolveUrl(referrer, "..", ...urlParts);
-    if (!resolvedUrl.match(/\.(js|css|mjs)$/g)) resolvedUrl += ".js";
+    if (!resolvedUrl.match(/\.(js|css|mjs|ts)$/g)) {
+      resolvedUrl = await detectUrl([`${resolvedUrl}.js`, `${resolvedUrl}.ts`]);
+    }
   }
   context.requires[`${referrer}->${url}`] = resolvedUrl;
   if (context.codes.hasOwnProperty(resolvedUrl)) return context;
@@ -144,7 +153,7 @@ const downloadCode = async (
     return context;
   }
   //transpile code if needed
-  let code = transform(await codeResponse.text());
+  let code = transform(await codeResponse.text(), resolvedUrl);
   context.codes[resolvedUrl] = code;
   let regex = /require\(["'](.*?)["']\)/g,
     promises = [],
@@ -163,4 +172,14 @@ const downloadCode = async (
     await promises[i];
   }
   return context;
+};
+const detectUrl = async candidates => {
+  let resolvedUrl;
+  for (let i = 0; i < candidates.length; i++) {
+    resolvedUrl = await fetch(candidates[i]).then(r =>
+      r.status === 200 ? candidates[i] : undefined
+    );
+    if (resolvedUrl) return resolvedUrl;
+  }
+  return null;
 };

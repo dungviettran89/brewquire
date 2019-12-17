@@ -5,7 +5,7 @@
   "main": "brewquire.js",
   "scripts": {
     "start": "http-server -c 1 -o -p 14231",
-    "prettier": "prettier **/*.js --write",
+    "prettier": "prettier **/*.{js,ts} --write",
     "eslint": "eslint brewquire.js demo/**/*.js",
     "prepublishOnly": "npm run prettier && npm run eslint",
     "release:rc": "npm version prerelease --preid=rc && npm publish --tag=next",
